@@ -1,0 +1,10 @@
+type Project { id: ID!, name: String!, tickets(first: Int, after: String): TicketConnection! }
+type Ticket { id: ID!, title: String!, status: String! }
+
+type TicketConnection { edges: [TicketEdge!]!, pageInfo: PageInfo! }
+type TicketEdge { node: Ticket!, cursor: String! }
+type PageInfo { hasNextPage: Boolean!, endCursor: String }
+
+type Query { projects(first: Int, after: String): [Project!]! }
+type Mutation { createTicket(projectId: ID!, title: String!): Ticket! }
+type Subscription { ticketCreated(projectId: ID!): Ticket! }

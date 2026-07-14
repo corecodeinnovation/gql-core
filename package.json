@@ -1,0 +1,19 @@
+{
+  "name": "gql-core",
+  "version": "0.1.0",
+  "description": "API GraphQL de referencia: subscriptions, DataLoader, paginación Relay, Prisma.",
+  "scripts": {
+    "dev": "nest start --watch",
+    "build": "nest build",
+    "start": "node dist/main.js",
+    "codegen": "graphql-codegen",
+    "lint": "eslint .",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@nestjs/common": "^10.4.0", "@nestjs/core": "^10.4.0",
+    "@nestjs/graphql": "^12.2.0", "@apollo/server": "^4.11.0",
+    "graphql": "^16.9.0", "dataloader": "^2.2.0", "@prisma/client": "^5.20.0"
+  },
+  "devDependencies": { "@nestjs/cli": "^10.4.0", "typescript": "^5.6.0", "jest": "^29.7.0", "prisma": "^5.20.0" }
+}
