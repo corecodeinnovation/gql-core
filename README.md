@@ -29,8 +29,8 @@ docker compose up --build
 ```
 
 ## Features
-- [ ] Schema-first (ver src/schema.graphql)
-- [ ] Queries con paginación Relay + filtros
+- [x] Schema-first (ver src/schema.graphql)
+- [x] Queries con paginación Relay + filtros
 - [ ] Mutations con errores tipados
 - [ ] Subscriptions (graphql-ws)
 - [ ] DataLoader (ver docs/deep-dives/n-plus-1-dataloader.md)
