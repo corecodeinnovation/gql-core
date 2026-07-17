@@ -5,6 +5,18 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgres:16-alpine
+        env: { POSTGRES_USER: gql, POSTGRES_PASSWORD: gql, POSTGRES_DB: gqlcore }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U gql -d gqlcore"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://gql:gql@localhost:5432/gqlcore
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -13,4 +25,6 @@ jobs:
       - run: npm run lint
       - run: npm run codegen:check
       - run: npm run build
+      - run: npx prisma migrate deploy
+      - run: node prisma/seed.js
       - run: npm test
