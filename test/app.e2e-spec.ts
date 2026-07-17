@@ -98,8 +98,10 @@ describe("Queries GraphQL (e2e, sobre seed)", () => {
   });
 
   it("projects: connection anidada de tickets por proyecto", async () => {
+    // orden ASC: los más antiguos son los del seed (20–30 tickets garantizados),
+    // inmune a proyectos creados por los tests de mutations
     const data = await gql(
-      `{ projects(first: 3) { edges { node { id tickets(first: 4) { edges { node { id } } totalCount } } } } }`,
+      `{ projects(first: 3, orderBy: { field: CREATED_AT, direction: ASC }) { edges { node { id tickets(first: 4) { edges { node { id } } totalCount } } } } }`,
     );
     const projects = data.projects as unknown as {
       edges: { node: { tickets: Connection } }[];
