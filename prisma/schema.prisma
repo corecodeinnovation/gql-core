@@ -1,17 +1,48 @@
-generator client { provider = "prisma-client-js" }
-datasource db { provider = "postgresql"; url = env("DATABASE_URL") }
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  DONE
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
 
 model Project {
-  id        String   @id @default(cuid())
-  name      String
-  tickets   Ticket[]
-  createdAt DateTime @default(now())
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  tickets     Ticket[]
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt, id])
 }
+
 model Ticket {
-  id        String   @id @default(cuid())
-  title     String
-  status    String   @default("open")
-  projectId String
-  project   Project  @relation(fields: [projectId], references: [id])
-  createdAt DateTime @default(now())
+  id          String         @id @default(cuid())
+  title       String
+  description String?
+  status      TicketStatus   @default(OPEN)
+  priority    TicketPriority @default(MEDIUM)
+  // sub del JWT emitido por cci-auth-service; nullable hasta integrar auth (F4)
+  authorSub   String?
+  projectId   String
+  project     Project        @relation(fields: [projectId], references: [id])
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([projectId, createdAt, id])
+  @@index([status])
 }
