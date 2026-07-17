@@ -6,3 +6,6 @@ generates:
       - typescript-resolvers
     config:
       useIndexSignature: true
+      enumsAsTypes: true
+      scalars:
+        DateTime: Date

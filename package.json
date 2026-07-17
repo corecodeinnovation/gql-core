@@ -10,7 +10,12 @@
     "codegen:check": "graphql-codegen --config codegen.yml --check",
     "lint": "eslint .",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "test": "jest"
+    "test": "jest",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "prisma db seed"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   },
   "dependencies": {
     "@apollo/server": "^4.11.0",
