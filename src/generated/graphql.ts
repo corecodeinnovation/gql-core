@@ -1,4 +1,4 @@
-import { GraphQLResolveInfo } from 'graphql';
+import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -14,27 +14,25 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
+  DateTime: { input: Date; output: Date; }
 };
 
-export type Mutation = {
-  __typename?: 'Mutation';
-  createTicket: Ticket;
-};
-
-
-export type MutationCreateTicketArgs = {
-  projectId: Scalars['ID']['input'];
-  title: Scalars['String']['input'];
-};
+export type OrderDirection =
+  | 'ASC'
+  | 'DESC';
 
 export type PageInfo = {
   __typename?: 'PageInfo';
   endCursor?: Maybe<Scalars['String']['output']>;
   hasNextPage: Scalars['Boolean']['output'];
+  hasPreviousPage: Scalars['Boolean']['output'];
+  startCursor?: Maybe<Scalars['String']['output']>;
 };
 
 export type Project = {
   __typename?: 'Project';
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   tickets: TicketConnection;
@@ -43,34 +41,74 @@ export type Project = {
 
 export type ProjectTicketsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<TicketFilter>;
   first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<TicketOrder>;
 };
+
+export type ProjectConnection = {
+  __typename?: 'ProjectConnection';
+  edges: Array<ProjectEdge>;
+  pageInfo: PageInfo;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type ProjectEdge = {
+  __typename?: 'ProjectEdge';
+  cursor: Scalars['String']['output'];
+  node: Project;
+};
+
+export type ProjectFilter = {
+  search?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ProjectOrder = {
+  direction: OrderDirection;
+  field: ProjectOrderField;
+};
+
+export type ProjectOrderField =
+  | 'CREATED_AT'
+  | 'NAME';
 
 export type Query = {
   __typename?: 'Query';
-  projects: Array<Project>;
+  project?: Maybe<Project>;
+  projects: ProjectConnection;
+  tickets: TicketConnection;
+};
+
+
+export type QueryProjectArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
 export type QueryProjectsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<ProjectFilter>;
   first?: InputMaybe<Scalars['Int']['input']>;
-};
-
-export type Subscription = {
-  __typename?: 'Subscription';
-  ticketCreated: Ticket;
+  orderBy?: InputMaybe<ProjectOrder>;
 };
 
 
-export type SubscriptionTicketCreatedArgs = {
-  projectId: Scalars['ID']['input'];
+export type QueryTicketsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<TicketFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<TicketOrder>;
 };
 
 export type Ticket = {
   __typename?: 'Ticket';
+  authorSub?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
-  status: Scalars['String']['output'];
+  priority: TicketPriority;
+  project: Project;
+  status: TicketStatus;
   title: Scalars['String']['output'];
 };
 
@@ -78,6 +116,7 @@ export type TicketConnection = {
   __typename?: 'TicketConnection';
   edges: Array<TicketEdge>;
   pageInfo: PageInfo;
+  totalCount: Scalars['Int']['output'];
 };
 
 export type TicketEdge = {
@@ -85,6 +124,33 @@ export type TicketEdge = {
   cursor: Scalars['String']['output'];
   node: Ticket;
 };
+
+export type TicketFilter = {
+  priority?: InputMaybe<TicketPriority>;
+  search?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<TicketStatus>;
+};
+
+export type TicketOrder = {
+  direction: OrderDirection;
+  field: TicketOrderField;
+};
+
+export type TicketOrderField =
+  | 'CREATED_AT'
+  | 'PRIORITY'
+  | 'TITLE';
+
+export type TicketPriority =
+  | 'HIGH'
+  | 'LOW'
+  | 'MEDIUM';
+
+export type TicketStatus =
+  | 'CLOSED'
+  | 'DONE'
+  | 'IN_PROGRESS'
+  | 'OPEN';
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
 export type ResolversObject<TObject> = WithIndex<TObject>;
@@ -159,63 +225,98 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  DateTime: ResolverTypeWrapper<Scalars['DateTime']['output']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
-  Mutation: ResolverTypeWrapper<{}>;
+  OrderDirection: OrderDirection;
   PageInfo: ResolverTypeWrapper<PageInfo>;
   Project: ResolverTypeWrapper<Project>;
+  ProjectConnection: ResolverTypeWrapper<ProjectConnection>;
+  ProjectEdge: ResolverTypeWrapper<ProjectEdge>;
+  ProjectFilter: ProjectFilter;
+  ProjectOrder: ProjectOrder;
+  ProjectOrderField: ProjectOrderField;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
-  Subscription: ResolverTypeWrapper<{}>;
   Ticket: ResolverTypeWrapper<Ticket>;
   TicketConnection: ResolverTypeWrapper<TicketConnection>;
   TicketEdge: ResolverTypeWrapper<TicketEdge>;
+  TicketFilter: TicketFilter;
+  TicketOrder: TicketOrder;
+  TicketOrderField: TicketOrderField;
+  TicketPriority: TicketPriority;
+  TicketStatus: TicketStatus;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean']['output'];
+  DateTime: Scalars['DateTime']['output'];
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
-  Mutation: {};
   PageInfo: PageInfo;
   Project: Project;
+  ProjectConnection: ProjectConnection;
+  ProjectEdge: ProjectEdge;
+  ProjectFilter: ProjectFilter;
+  ProjectOrder: ProjectOrder;
   Query: {};
   String: Scalars['String']['output'];
-  Subscription: {};
   Ticket: Ticket;
   TicketConnection: TicketConnection;
   TicketEdge: TicketEdge;
+  TicketFilter: TicketFilter;
+  TicketOrder: TicketOrder;
 }>;
 
-export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
-  createTicket?: Resolver<ResolversTypes['Ticket'], ParentType, ContextType, RequireFields<MutationCreateTicketArgs, 'projectId' | 'title'>>;
-}>;
+export interface DateTimeScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['DateTime'], any> {
+  name: 'DateTime';
+}
 
 export type PageInfoResolvers<ContextType = any, ParentType extends ResolversParentTypes['PageInfo'] = ResolversParentTypes['PageInfo']> = ResolversObject<{
   endCursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   hasNextPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  hasPreviousPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  startCursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type ProjectResolvers<ContextType = any, ParentType extends ResolversParentTypes['Project'] = ResolversParentTypes['Project']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   tickets?: Resolver<ResolversTypes['TicketConnection'], ParentType, ContextType, Partial<ProjectTicketsArgs>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
-  projects?: Resolver<Array<ResolversTypes['Project']>, ParentType, ContextType, Partial<QueryProjectsArgs>>;
+export type ProjectConnectionResolvers<ContextType = any, ParentType extends ResolversParentTypes['ProjectConnection'] = ResolversParentTypes['ProjectConnection']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['ProjectEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type SubscriptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = ResolversObject<{
-  ticketCreated?: SubscriptionResolver<ResolversTypes['Ticket'], "ticketCreated", ParentType, ContextType, RequireFields<SubscriptionTicketCreatedArgs, 'projectId'>>;
+export type ProjectEdgeResolvers<ContextType = any, ParentType extends ResolversParentTypes['ProjectEdge'] = ResolversParentTypes['ProjectEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['Project'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
+  project?: Resolver<Maybe<ResolversTypes['Project']>, ParentType, ContextType, RequireFields<QueryProjectArgs, 'id'>>;
+  projects?: Resolver<ResolversTypes['ProjectConnection'], ParentType, ContextType, Partial<QueryProjectsArgs>>;
+  tickets?: Resolver<ResolversTypes['TicketConnection'], ParentType, ContextType, Partial<QueryTicketsArgs>>;
 }>;
 
 export type TicketResolvers<ContextType = any, ParentType extends ResolversParentTypes['Ticket'] = ResolversParentTypes['Ticket']> = ResolversObject<{
+  authorSub?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  priority?: Resolver<ResolversTypes['TicketPriority'], ParentType, ContextType>;
+  project?: Resolver<ResolversTypes['Project'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['TicketStatus'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -223,6 +324,7 @@ export type TicketResolvers<ContextType = any, ParentType extends ResolversParen
 export type TicketConnectionResolvers<ContextType = any, ParentType extends ResolversParentTypes['TicketConnection'] = ResolversParentTypes['TicketConnection']> = ResolversObject<{
   edges?: Resolver<Array<ResolversTypes['TicketEdge']>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -233,11 +335,12 @@ export type TicketEdgeResolvers<ContextType = any, ParentType extends ResolversP
 }>;
 
 export type Resolvers<ContextType = any> = ResolversObject<{
-  Mutation?: MutationResolvers<ContextType>;
+  DateTime?: GraphQLScalarType;
   PageInfo?: PageInfoResolvers<ContextType>;
   Project?: ProjectResolvers<ContextType>;
+  ProjectConnection?: ProjectConnectionResolvers<ContextType>;
+  ProjectEdge?: ProjectEdgeResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
-  Subscription?: SubscriptionResolvers<ContextType>;
   Ticket?: TicketResolvers<ContextType>;
   TicketConnection?: TicketConnectionResolvers<ContextType>;
   TicketEdge?: TicketEdgeResolvers<ContextType>;
