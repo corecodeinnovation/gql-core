@@ -102,3 +102,50 @@ type Query {
   project(id: ID!): Project
   tickets(first: Int, after: String, filter: TicketFilter, orderBy: TicketOrder): TicketConnection!
 }
+
+interface Error {
+  message: String!
+}
+
+type ValidationError implements Error {
+  message: String!
+  field: String!
+}
+
+type NotFoundError implements Error {
+  message: String!
+  id: ID!
+}
+
+type InvalidStatusTransitionError implements Error {
+  message: String!
+  from: TicketStatus!
+  to: TicketStatus!
+}
+
+input CreateProjectInput {
+  name: String!
+  description: String
+}
+
+input CreateTicketInput {
+  projectId: ID!
+  title: String!
+  description: String
+  priority: TicketPriority
+}
+
+input ChangeTicketStatusInput {
+  ticketId: ID!
+  status: TicketStatus!
+}
+
+union CreateProjectResult = Project | ValidationError
+union CreateTicketResult = Ticket | ValidationError | NotFoundError
+union ChangeTicketStatusResult = Ticket | NotFoundError | InvalidStatusTransitionError
+
+type Mutation {
+  createProject(input: CreateProjectInput!): CreateProjectResult!
+  createTicket(input: CreateTicketInput!): CreateTicketResult!
+  changeTicketStatus(input: ChangeTicketStatusInput!): ChangeTicketStatusResult!
+}

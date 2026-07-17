@@ -1,6 +1,11 @@
-import { Args, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import { Args, Context, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
 import { Ticket as TicketModel } from "@prisma/client";
-import { QueryTicketsArgs } from "../generated/graphql";
+import { GqlContext } from "../common/context";
+import {
+  ChangeTicketStatusInput,
+  CreateTicketInput,
+  QueryTicketsArgs,
+} from "../generated/graphql";
 import { ProjectsService } from "../services/projects.service";
 import { TicketsService } from "../services/tickets.service";
 
@@ -16,9 +21,18 @@ export class TicketResolver {
     return this.ticketsService.connection(args);
   }
 
+  @Mutation("createTicket")
+  createTicket(@Args("input") input: CreateTicketInput) {
+    return this.ticketsService.create(input);
+  }
+
+  @Mutation("changeTicketStatus")
+  changeTicketStatus(@Args("input") input: ChangeTicketStatusInput) {
+    return this.ticketsService.changeStatus(input);
+  }
+
   @ResolveField("project")
-  project(@Parent() ticket: TicketModel) {
-    // N+1 deliberado en F1: se reemplaza por DataLoader en F2 (benchmark antes/después).
-    return this.projectsService.byId(ticket.projectId);
+  project(@Parent() ticket: TicketModel, @Context() ctx: GqlContext) {
+    return ctx.loaders.projectById.load(ticket.projectId);
   }
 }

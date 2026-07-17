@@ -17,6 +17,68 @@ export type Scalars = {
   DateTime: { input: Date; output: Date; }
 };
 
+export type ChangeTicketStatusInput = {
+  status: TicketStatus;
+  ticketId: Scalars['ID']['input'];
+};
+
+export type ChangeTicketStatusResult = InvalidStatusTransitionError | NotFoundError | Ticket;
+
+export type CreateProjectInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+};
+
+export type CreateProjectResult = Project | ValidationError;
+
+export type CreateTicketInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  priority?: InputMaybe<TicketPriority>;
+  projectId: Scalars['ID']['input'];
+  title: Scalars['String']['input'];
+};
+
+export type CreateTicketResult = NotFoundError | Ticket | ValidationError;
+
+export type Error = {
+  message: Scalars['String']['output'];
+};
+
+export type InvalidStatusTransitionError = Error & {
+  __typename?: 'InvalidStatusTransitionError';
+  from: TicketStatus;
+  message: Scalars['String']['output'];
+  to: TicketStatus;
+};
+
+export type Mutation = {
+  __typename?: 'Mutation';
+  changeTicketStatus: ChangeTicketStatusResult;
+  createProject: CreateProjectResult;
+  createTicket: CreateTicketResult;
+};
+
+
+export type MutationChangeTicketStatusArgs = {
+  input: ChangeTicketStatusInput;
+};
+
+
+export type MutationCreateProjectArgs = {
+  input: CreateProjectInput;
+};
+
+
+export type MutationCreateTicketArgs = {
+  input: CreateTicketInput;
+};
+
+export type NotFoundError = Error & {
+  __typename?: 'NotFoundError';
+  id: Scalars['ID']['output'];
+  message: Scalars['String']['output'];
+};
+
 export type OrderDirection =
   | 'ASC'
   | 'DESC';
@@ -152,6 +214,12 @@ export type TicketStatus =
   | 'IN_PROGRESS'
   | 'OPEN';
 
+export type ValidationError = Error & {
+  __typename?: 'ValidationError';
+  field: Scalars['String']['output'];
+  message: Scalars['String']['output'];
+};
+
 export type WithIndex<TObject> = TObject & Record<string, any>;
 export type ResolversObject<TObject> = WithIndex<TObject>;
 
@@ -220,14 +288,34 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
   info: GraphQLResolveInfo
 ) => TResult | Promise<TResult>;
 
+/** Mapping of union types */
+export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = ResolversObject<{
+  ChangeTicketStatusResult: ( InvalidStatusTransitionError ) | ( NotFoundError ) | ( Ticket );
+  CreateProjectResult: ( Project ) | ( ValidationError );
+  CreateTicketResult: ( NotFoundError ) | ( Ticket ) | ( ValidationError );
+}>;
 
+/** Mapping of interface types */
+export type ResolversInterfaceTypes<_RefType extends Record<string, unknown>> = ResolversObject<{
+  Error: ( InvalidStatusTransitionError ) | ( NotFoundError ) | ( ValidationError );
+}>;
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  ChangeTicketStatusInput: ChangeTicketStatusInput;
+  ChangeTicketStatusResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ChangeTicketStatusResult']>;
+  CreateProjectInput: CreateProjectInput;
+  CreateProjectResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateProjectResult']>;
+  CreateTicketInput: CreateTicketInput;
+  CreateTicketResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateTicketResult']>;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']['output']>;
+  Error: ResolverTypeWrapper<ResolversInterfaceTypes<ResolversTypes>['Error']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  InvalidStatusTransitionError: ResolverTypeWrapper<InvalidStatusTransitionError>;
+  Mutation: ResolverTypeWrapper<{}>;
+  NotFoundError: ResolverTypeWrapper<NotFoundError>;
   OrderDirection: OrderDirection;
   PageInfo: ResolverTypeWrapper<PageInfo>;
   Project: ResolverTypeWrapper<Project>;
@@ -246,14 +334,25 @@ export type ResolversTypes = ResolversObject<{
   TicketOrderField: TicketOrderField;
   TicketPriority: TicketPriority;
   TicketStatus: TicketStatus;
+  ValidationError: ResolverTypeWrapper<ValidationError>;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean']['output'];
+  ChangeTicketStatusInput: ChangeTicketStatusInput;
+  ChangeTicketStatusResult: ResolversUnionTypes<ResolversParentTypes>['ChangeTicketStatusResult'];
+  CreateProjectInput: CreateProjectInput;
+  CreateProjectResult: ResolversUnionTypes<ResolversParentTypes>['CreateProjectResult'];
+  CreateTicketInput: CreateTicketInput;
+  CreateTicketResult: ResolversUnionTypes<ResolversParentTypes>['CreateTicketResult'];
   DateTime: Scalars['DateTime']['output'];
+  Error: ResolversInterfaceTypes<ResolversParentTypes>['Error'];
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
+  InvalidStatusTransitionError: InvalidStatusTransitionError;
+  Mutation: {};
+  NotFoundError: NotFoundError;
   PageInfo: PageInfo;
   Project: Project;
   ProjectConnection: ProjectConnection;
@@ -267,11 +366,48 @@ export type ResolversParentTypes = ResolversObject<{
   TicketEdge: TicketEdge;
   TicketFilter: TicketFilter;
   TicketOrder: TicketOrder;
+  ValidationError: ValidationError;
+}>;
+
+export type ChangeTicketStatusResultResolvers<ContextType = any, ParentType extends ResolversParentTypes['ChangeTicketStatusResult'] = ResolversParentTypes['ChangeTicketStatusResult']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'InvalidStatusTransitionError' | 'NotFoundError' | 'Ticket', ParentType, ContextType>;
+}>;
+
+export type CreateProjectResultResolvers<ContextType = any, ParentType extends ResolversParentTypes['CreateProjectResult'] = ResolversParentTypes['CreateProjectResult']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'Project' | 'ValidationError', ParentType, ContextType>;
+}>;
+
+export type CreateTicketResultResolvers<ContextType = any, ParentType extends ResolversParentTypes['CreateTicketResult'] = ResolversParentTypes['CreateTicketResult']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'NotFoundError' | 'Ticket' | 'ValidationError', ParentType, ContextType>;
 }>;
 
 export interface DateTimeScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['DateTime'], any> {
   name: 'DateTime';
 }
+
+export type ErrorResolvers<ContextType = any, ParentType extends ResolversParentTypes['Error'] = ResolversParentTypes['Error']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'InvalidStatusTransitionError' | 'NotFoundError' | 'ValidationError', ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+}>;
+
+export type InvalidStatusTransitionErrorResolvers<ContextType = any, ParentType extends ResolversParentTypes['InvalidStatusTransitionError'] = ResolversParentTypes['InvalidStatusTransitionError']> = ResolversObject<{
+  from?: Resolver<ResolversTypes['TicketStatus'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  to?: Resolver<ResolversTypes['TicketStatus'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
+  changeTicketStatus?: Resolver<ResolversTypes['ChangeTicketStatusResult'], ParentType, ContextType, RequireFields<MutationChangeTicketStatusArgs, 'input'>>;
+  createProject?: Resolver<ResolversTypes['CreateProjectResult'], ParentType, ContextType, RequireFields<MutationCreateProjectArgs, 'input'>>;
+  createTicket?: Resolver<ResolversTypes['CreateTicketResult'], ParentType, ContextType, RequireFields<MutationCreateTicketArgs, 'input'>>;
+}>;
+
+export type NotFoundErrorResolvers<ContextType = any, ParentType extends ResolversParentTypes['NotFoundError'] = ResolversParentTypes['NotFoundError']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
 
 export type PageInfoResolvers<ContextType = any, ParentType extends ResolversParentTypes['PageInfo'] = ResolversParentTypes['PageInfo']> = ResolversObject<{
   endCursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -334,8 +470,21 @@ export type TicketEdgeResolvers<ContextType = any, ParentType extends ResolversP
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type ValidationErrorResolvers<ContextType = any, ParentType extends ResolversParentTypes['ValidationError'] = ResolversParentTypes['ValidationError']> = ResolversObject<{
+  field?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type Resolvers<ContextType = any> = ResolversObject<{
+  ChangeTicketStatusResult?: ChangeTicketStatusResultResolvers<ContextType>;
+  CreateProjectResult?: CreateProjectResultResolvers<ContextType>;
+  CreateTicketResult?: CreateTicketResultResolvers<ContextType>;
   DateTime?: GraphQLScalarType;
+  Error?: ErrorResolvers<ContextType>;
+  InvalidStatusTransitionError?: InvalidStatusTransitionErrorResolvers<ContextType>;
+  Mutation?: MutationResolvers<ContextType>;
+  NotFoundError?: NotFoundErrorResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
   Project?: ProjectResolvers<ContextType>;
   ProjectConnection?: ProjectConnectionResolvers<ContextType>;
@@ -344,5 +493,6 @@ export type Resolvers<ContextType = any> = ResolversObject<{
   Ticket?: TicketResolvers<ContextType>;
   TicketConnection?: TicketConnectionResolvers<ContextType>;
   TicketEdge?: TicketEdgeResolvers<ContextType>;
+  ValidationError?: ValidationErrorResolvers<ContextType>;
 }>;
 
