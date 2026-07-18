@@ -1,5 +1,13 @@
 scalar DateTime
 
+directive @auth on FIELD_DEFINITION
+directive @role(role: Role!) on FIELD_DEFINITION
+
+enum Role {
+  USER
+  ADMIN
+}
+
 enum TicketStatus {
   OPEN
   IN_PROGRESS
@@ -143,11 +151,13 @@ input ChangeTicketStatusInput {
 union CreateProjectResult = Project | ValidationError
 union CreateTicketResult = Ticket | ValidationError | NotFoundError
 union ChangeTicketStatusResult = Ticket | NotFoundError | InvalidStatusTransitionError
+union DeleteTicketResult = Ticket | NotFoundError
 
 type Mutation {
-  createProject(input: CreateProjectInput!): CreateProjectResult!
-  createTicket(input: CreateTicketInput!): CreateTicketResult!
-  changeTicketStatus(input: ChangeTicketStatusInput!): ChangeTicketStatusResult!
+  createProject(input: CreateProjectInput!): CreateProjectResult! @auth
+  createTicket(input: CreateTicketInput!): CreateTicketResult! @auth
+  changeTicketStatus(input: ChangeTicketStatusInput!): ChangeTicketStatusResult! @auth
+  deleteTicket(id: ID!): DeleteTicketResult! @role(role: ADMIN)
 }
 
 type Subscription {

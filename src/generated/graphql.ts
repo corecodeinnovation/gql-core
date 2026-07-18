@@ -40,6 +40,8 @@ export type CreateTicketInput = {
 
 export type CreateTicketResult = NotFoundError | Ticket | ValidationError;
 
+export type DeleteTicketResult = NotFoundError | Ticket;
+
 export type Error = {
   message: Scalars['String']['output'];
 };
@@ -56,6 +58,7 @@ export type Mutation = {
   changeTicketStatus: ChangeTicketStatusResult;
   createProject: CreateProjectResult;
   createTicket: CreateTicketResult;
+  deleteTicket: DeleteTicketResult;
 };
 
 
@@ -71,6 +74,11 @@ export type MutationCreateProjectArgs = {
 
 export type MutationCreateTicketArgs = {
   input: CreateTicketInput;
+};
+
+
+export type MutationDeleteTicketArgs = {
+  id: Scalars['ID']['input'];
 };
 
 export type NotFoundError = Error & {
@@ -161,6 +169,10 @@ export type QueryTicketsArgs = {
   first?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<TicketOrder>;
 };
+
+export type Role =
+  | 'ADMIN'
+  | 'USER';
 
 export type Subscription = {
   __typename?: 'Subscription';
@@ -309,6 +321,7 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = Reso
   ChangeTicketStatusResult: ( InvalidStatusTransitionError ) | ( NotFoundError ) | ( Ticket );
   CreateProjectResult: ( Project ) | ( ValidationError );
   CreateTicketResult: ( NotFoundError ) | ( Ticket ) | ( ValidationError );
+  DeleteTicketResult: ( NotFoundError ) | ( Ticket );
 }>;
 
 /** Mapping of interface types */
@@ -326,6 +339,7 @@ export type ResolversTypes = ResolversObject<{
   CreateTicketInput: CreateTicketInput;
   CreateTicketResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateTicketResult']>;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']['output']>;
+  DeleteTicketResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteTicketResult']>;
   Error: ResolverTypeWrapper<ResolversInterfaceTypes<ResolversTypes>['Error']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
@@ -341,6 +355,7 @@ export type ResolversTypes = ResolversObject<{
   ProjectOrder: ProjectOrder;
   ProjectOrderField: ProjectOrderField;
   Query: ResolverTypeWrapper<{}>;
+  Role: Role;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Subscription: ResolverTypeWrapper<{}>;
   Ticket: ResolverTypeWrapper<Ticket>;
@@ -364,6 +379,7 @@ export type ResolversParentTypes = ResolversObject<{
   CreateTicketInput: CreateTicketInput;
   CreateTicketResult: ResolversUnionTypes<ResolversParentTypes>['CreateTicketResult'];
   DateTime: Scalars['DateTime']['output'];
+  DeleteTicketResult: ResolversUnionTypes<ResolversParentTypes>['DeleteTicketResult'];
   Error: ResolversInterfaceTypes<ResolversParentTypes>['Error'];
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
@@ -387,6 +403,16 @@ export type ResolversParentTypes = ResolversObject<{
   ValidationError: ValidationError;
 }>;
 
+export type AuthDirectiveArgs = { };
+
+export type AuthDirectiveResolver<Result, Parent, ContextType = any, Args = AuthDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+
+export type RoleDirectiveArgs = {
+  role: Role;
+};
+
+export type RoleDirectiveResolver<Result, Parent, ContextType = any, Args = RoleDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+
 export type ChangeTicketStatusResultResolvers<ContextType = any, ParentType extends ResolversParentTypes['ChangeTicketStatusResult'] = ResolversParentTypes['ChangeTicketStatusResult']> = ResolversObject<{
   __resolveType: TypeResolveFn<'InvalidStatusTransitionError' | 'NotFoundError' | 'Ticket', ParentType, ContextType>;
 }>;
@@ -402,6 +428,10 @@ export type CreateTicketResultResolvers<ContextType = any, ParentType extends Re
 export interface DateTimeScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['DateTime'], any> {
   name: 'DateTime';
 }
+
+export type DeleteTicketResultResolvers<ContextType = any, ParentType extends ResolversParentTypes['DeleteTicketResult'] = ResolversParentTypes['DeleteTicketResult']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'NotFoundError' | 'Ticket', ParentType, ContextType>;
+}>;
 
 export type ErrorResolvers<ContextType = any, ParentType extends ResolversParentTypes['Error'] = ResolversParentTypes['Error']> = ResolversObject<{
   __resolveType: TypeResolveFn<'InvalidStatusTransitionError' | 'NotFoundError' | 'ValidationError', ParentType, ContextType>;
@@ -419,6 +449,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   changeTicketStatus?: Resolver<ResolversTypes['ChangeTicketStatusResult'], ParentType, ContextType, RequireFields<MutationChangeTicketStatusArgs, 'input'>>;
   createProject?: Resolver<ResolversTypes['CreateProjectResult'], ParentType, ContextType, RequireFields<MutationCreateProjectArgs, 'input'>>;
   createTicket?: Resolver<ResolversTypes['CreateTicketResult'], ParentType, ContextType, RequireFields<MutationCreateTicketArgs, 'input'>>;
+  deleteTicket?: Resolver<ResolversTypes['DeleteTicketResult'], ParentType, ContextType, RequireFields<MutationDeleteTicketArgs, 'id'>>;
 }>;
 
 export type NotFoundErrorResolvers<ContextType = any, ParentType extends ResolversParentTypes['NotFoundError'] = ResolversParentTypes['NotFoundError']> = ResolversObject<{
@@ -504,6 +535,7 @@ export type Resolvers<ContextType = any> = ResolversObject<{
   CreateProjectResult?: CreateProjectResultResolvers<ContextType>;
   CreateTicketResult?: CreateTicketResultResolvers<ContextType>;
   DateTime?: GraphQLScalarType;
+  DeleteTicketResult?: DeleteTicketResultResolvers<ContextType>;
   Error?: ErrorResolvers<ContextType>;
   InvalidStatusTransitionError?: InvalidStatusTransitionErrorResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
@@ -520,3 +552,7 @@ export type Resolvers<ContextType = any> = ResolversObject<{
   ValidationError?: ValidationErrorResolvers<ContextType>;
 }>;
 
+export type DirectiveResolvers<ContextType = any> = ResolversObject<{
+  auth?: AuthDirectiveResolver<any, any, ContextType>;
+  role?: RoleDirectiveResolver<any, any, ContextType>;
+}>;
