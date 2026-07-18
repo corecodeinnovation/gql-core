@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Core Code Innovation — API</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+  <meta name="robots" content="noindex" />
+  <style>
+    :root{
+      --ink:#0B0B0E; --surface:#16171B; --surface-2:#1E2024; --line:#2A2D33;
+      --orange:#FF5A1F; --amber:#FF8A3D; --slate:#8A93A0;
+      --text:#F0F0F0; --muted:#9AA0A8; --success:#22C55E;
+      --sans:'Inter',system-ui,-apple-system,sans-serif;
+      --mono:'JetBrains Mono',ui-monospace,monospace;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:var(--ink); color:var(--text); font-family:var(--sans);
+      display:grid; place-items:center; padding:24px;
+    }
+    .card{
+      width:100%; max-width:440px; text-align:center;
+      background:var(--surface); border:1px solid var(--line);
+      border-radius:18px; padding:40px 32px;
+    }
+    .logo{width:132px; height:auto; margin:0 auto 20px; display:block}
+    h1{
+      font-size:22px; font-weight:800; letter-spacing:-.01em; margin:0;
+    }
+    h1 .c{color:var(--orange)}
+    .service{
+      font-family:var(--mono); font-size:13px; color:var(--muted);
+      margin-top:6px; letter-spacing:.02em;
+    }
+    .status{
+      display:inline-flex; align-items:center; gap:8px; margin-top:18px;
+      font-size:13px; color:var(--muted);
+      background:var(--surface-2); border:1px solid var(--line);
+      padding:6px 14px; border-radius:999px;
+    }
+    .dot{width:8px;height:8px;border-radius:50%;background:var(--success);
+      box-shadow:0 0 10px var(--success)}
+    .actions{display:flex; gap:10px; justify-content:center; margin-top:24px; flex-wrap:wrap}
+    a.btn{
+      text-decoration:none; font-size:13px; font-weight:600;
+      padding:10px 18px; border-radius:10px;
+    }
+    a.primary{background:var(--orange); color:#0B0B0E}
+    a.primary:hover{background:var(--amber)}
+    a.ghost{background:transparent; color:var(--text); border:1px solid var(--line)}
+    a.ghost:hover{border-color:var(--slate)}
+    .foot{margin-top:26px; font-size:12px; color:var(--muted)}
+    .foot a{color:var(--slate); text-decoration:none}
+  </style>
+</head>
+<body>
+  <main class="card">
+    <!-- Logo de marca (el cubo). Reemplazable por otra variante en ./logo.png -->
+    <img class="logo" src="./logo.png" alt="Core Code Innovation" />
+    <h1><span class="c">Core</span> Code Innovation</h1>
+    <!-- Cambiar por el nombre del servicio en cada repo -->
+    <div class="service">gql-core · API</div>
+
+    <div class="status"><span class="dot"></span> Servicio activo</div>
+
+    <div class="actions">
+      <!-- Ajustar rutas según el servicio (Swagger / GraphQL Playground / health) -->
+      <a class="btn primary" href="/graphql">Documentación</a>
+      <a class="btn ghost" href="/health">Health</a>
+    </div>
+
+    <div class="foot">
+      <a href="https://corecodeinnovation.com">corecodeinnovation.com</a>
+    </div>
+  </main>
+</body>
+</html>
