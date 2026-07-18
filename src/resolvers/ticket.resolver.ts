@@ -4,6 +4,7 @@ import { GqlContext } from "../common/context";
 import {
   ChangeTicketStatusInput,
   CreateTicketInput,
+  MutationDeleteTicketArgs,
   QueryTicketsArgs,
 } from "../generated/graphql";
 import { ProjectsService } from "../services/projects.service";
@@ -22,13 +23,19 @@ export class TicketResolver {
   }
 
   @Mutation("createTicket")
-  createTicket(@Args("input") input: CreateTicketInput) {
-    return this.ticketsService.create(input);
+  createTicket(@Args("input") input: CreateTicketInput, @Context() ctx: GqlContext) {
+    // @auth garantiza user; el sub queda como autor del ticket
+    return this.ticketsService.create(input, ctx.user?.sub ?? null);
   }
 
   @Mutation("changeTicketStatus")
   changeTicketStatus(@Args("input") input: ChangeTicketStatusInput) {
     return this.ticketsService.changeStatus(input);
+  }
+
+  @Mutation("deleteTicket")
+  deleteTicket(@Args() args: MutationDeleteTicketArgs) {
+    return this.ticketsService.delete(args.id);
   }
 
   @ResolveField("project")

@@ -26,6 +26,7 @@ export type ChangeTicketStatusResult =
   | TaggedTicket
   | NotFoundErrorResult
   | InvalidStatusTransitionErrorResult;
+export type DeleteTicketResult = TaggedTicket | NotFoundErrorResult;
 
 // Ciclo de vida del ticket; CLOSED es terminal (sin reopen en v1)
 const TRANSITIONS: Record<TicketStatus, readonly TicketStatus[]> = {
@@ -103,7 +104,7 @@ export class TicketsService {
     );
   }
 
-  async create(input: CreateTicketInput): Promise<CreateTicketResult> {
+  async create(input: CreateTicketInput, authorSub: string | null): Promise<CreateTicketResult> {
     const title = input.title.trim();
     if (title.length < 5) {
       return validationError("title", "El título debe tener al menos 5 caracteres");
@@ -118,10 +119,19 @@ export class TicketsService {
         description: input.description ?? null,
         priority: input.priority ?? "MEDIUM",
         projectId: input.projectId,
-        // authorSub llega con la integración de auth (F4)
+        authorSub,
       },
     });
     await this.pubSub.publish(EVENTS.TICKET_CREATED, { ticketCreated: ticket });
+    return { __typename: "Ticket", ...ticket };
+  }
+
+  async delete(id: string): Promise<DeleteTicketResult> {
+    const ticket = await this.prisma.ticket.findUnique({ where: { id } });
+    if (!ticket) {
+      return notFoundError(id, "El ticket no existe");
+    }
+    await this.prisma.ticket.delete({ where: { id } });
     return { __typename: "Ticket", ...ticket };
   }
 
