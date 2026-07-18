@@ -32,7 +32,7 @@ docker compose up --build
 - [x] Schema-first (ver src/schema.graphql)
 - [x] Queries con paginación Relay + filtros
 - [x] Mutations con errores tipados
-- [ ] Subscriptions (graphql-ws)
+- [x] Subscriptions (graphql-ws)
 - [x] DataLoader contra N+1 (26 → 4 queries en listados anidados)
 - [ ] Auth vía JWT de cci-auth-service
-- [ ] Query complexity + depth limiting
+- [x] Query complexity + depth limiting
