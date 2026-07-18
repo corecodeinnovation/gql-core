@@ -1,10 +1,12 @@
 // Subscriptions sobre graphql-ws con un cliente WS real contra el server levantado.
 process.env.DATABASE_URL ??= "postgresql://gql:gql@localhost:5434/gqlcore";
+process.env.AUTH_JWT_SECRET ??= "gql-core-e2e-secret";
 
 import { INestApplication } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import { Client, createClient } from "graphql-ws";
 import { Server } from "http";
+import jwt from "jsonwebtoken";
 import { AddressInfo } from "net";
 import request from "supertest";
 import type { App } from "supertest/types";
@@ -24,9 +26,14 @@ describe("Subscriptions (e2e, graphql-ws)", () => {
   let projectId: string;
   let otherProjectId: string;
 
+  const token = jwt.sign({ roles: ["USER"] }, process.env.AUTH_JWT_SECRET as string, {
+    subject: "e2e|subscriptions",
+  });
+
   const gql = async (query: string): Promise<Record<string, Record<string, unknown>>> => {
     const res = await request(app.getHttpServer() as App)
       .post("/graphql")
+      .set("Authorization", `Bearer ${token}`)
       .send({ query })
       .expect(200);
     const body = res.body as {

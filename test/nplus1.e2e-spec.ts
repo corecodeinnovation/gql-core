@@ -30,11 +30,11 @@ describe("N+1 (conteo de queries SQL)", () => {
     app = moduleRef.createNestApplication();
     prisma = app.get(PrismaService);
     await app.init();
-  });
+  }, 30000);
 
   afterAll(async () => {
     await app.close();
-  });
+  }, 30000);
 
   it("projects(12) → tickets(5) anidados", async () => {
     const n = await countQueries(

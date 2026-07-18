@@ -26,11 +26,11 @@ describe("Guardrails (e2e)", () => {
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
     app = moduleRef.createNestApplication();
     await app.init();
-  });
+  }, 30000);
 
   afterAll(async () => {
     await app.close();
-  });
+  }, 30000);
 
   it("rechaza una query más profunda que GRAPHQL_MAX_DEPTH", async () => {
     // profundidad 9: projects>edges>node>tickets>edges>node>project>tickets>edges

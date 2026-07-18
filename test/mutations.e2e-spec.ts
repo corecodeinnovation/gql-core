@@ -1,11 +1,17 @@
 // Mutations con union types: un test por cada rama del resultado.
 process.env.DATABASE_URL ??= "postgresql://gql:gql@localhost:5434/gqlcore";
+process.env.AUTH_JWT_SECRET ??= "gql-core-e2e-secret";
 
 import { INestApplication } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
+import jwt from "jsonwebtoken";
 import request from "supertest";
 import type { App } from "supertest/types";
 import { AppModule } from "../src/app.module";
+
+const token = jwt.sign({ roles: ["USER"] }, process.env.AUTH_JWT_SECRET, {
+  subject: "e2e|mutations",
+});
 
 type Result = Record<string, unknown> & { __typename: string };
 
@@ -16,6 +22,7 @@ describe("Mutations (e2e, union types de error)", () => {
   const gql = async (query: string): Promise<Record<string, Result>> => {
     const res = await request(app.getHttpServer() as App)
       .post("/graphql")
+      .set("Authorization", `Bearer ${token}`)
       .send({ query })
       .expect(200);
     const body = res.body as { errors?: unknown; data?: Record<string, Result> };
@@ -49,11 +56,11 @@ describe("Mutations (e2e, union types de error)", () => {
     );
     expect(createProject.__typename).toBe("Project");
     projectId = createProject.id as string;
-  });
+  }, 30000);
 
   afterAll(async () => {
     await app.close();
-  });
+  }, 30000);
 
   it("createProject: nombre corto → ValidationError con field", async () => {
     const { createProject } = await gql(

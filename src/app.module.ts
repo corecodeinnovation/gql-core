@@ -1,10 +1,14 @@
 import { Module } from "@nestjs/common";
 import { GraphQLISODateTime, GraphQLModule } from "@nestjs/graphql";
 import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
+import { IncomingMessage } from "http";
 import { join } from "path";
+import { authenticate } from "./auth/auth.context";
 import { GqlContext } from "./common/context";
+import { applyAuthDirectives } from "./directives/auth.directive";
 import { ComplexityPlugin } from "./guardrails/complexity.plugin";
 import { createDepthLimitRule } from "./guardrails/depth-limit.rule";
+import { HealthController } from "./health/health.controller";
 import { createLoaders } from "./loaders/loaders";
 import { PrismaModule } from "./prisma/prisma.module";
 import { PubSubModule } from "./pubsub/pubsub.module";
@@ -15,7 +19,11 @@ import { ServicesModule } from "./services/services.module";
 import { ProjectsService } from "./services/projects.service";
 import { TicketsService } from "./services/tickets.service";
 
-// Previsto: AuthDirective @auth/@role vía JWT de cci-auth-service (F4).
+interface ContextArgs {
+  req?: IncomingMessage;
+  connectionParams?: Record<string, unknown>;
+}
+
 @Module({
   imports: [
     PrismaModule,
@@ -30,15 +38,21 @@ import { TicketsService } from "./services/tickets.service";
         // los .graphql a dist (assets), por eso __dirname funciona en dev y prod.
         typePaths: [join(__dirname, "**/*.graphql")],
         resolvers: { DateTime: GraphQLISODateTime },
+        // aplica @auth/@role del SDL envolviendo los resolvers marcados
+        transformSchema: applyAuthDirectives,
         playground: true,
         // protocolo moderno de subscriptions; el legacy queda deshabilitado
         subscriptions: { "graphql-ws": true },
         validationRules: [createDepthLimitRule(Number(process.env.GRAPHQL_MAX_DEPTH ?? 8))],
-        // loaders nuevos POR REQUEST: jamás compartir la caché entre requests
-        context: (): GqlContext => ({ loaders: createLoaders(projectsService, ticketsService) }),
+        // loaders nuevos POR REQUEST (jamás compartir la caché) + identidad del JWT
+        context: async ({ req, connectionParams }: ContextArgs): Promise<GqlContext> => ({
+          loaders: createLoaders(projectsService, ticketsService),
+          user: await authenticate(req, connectionParams),
+        }),
       }),
     }),
   ],
+  controllers: [HealthController],
   providers: [ProjectResolver, TicketResolver, SubscriptionResolver, ComplexityPlugin],
 })
 export class AppModule {}

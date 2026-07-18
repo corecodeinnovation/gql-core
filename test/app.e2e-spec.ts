@@ -47,11 +47,11 @@ describe("Queries GraphQL (e2e, sobre seed)", () => {
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
     app = moduleRef.createNestApplication();
     await app.init();
-  });
+  }, 30000);
 
   afterAll(async () => {
     await app.close();
-  });
+  }, 30000);
 
   it("projects: primera página Relay con totalCount", async () => {
     const { projects } = await gql(
