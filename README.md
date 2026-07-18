@@ -25,14 +25,14 @@ límites de complejidad/profundidad.
 ```bash
 cp .env.example .env
 docker compose up --build
-# GraphQL Playground en http://localhost:3000/graphql
+# Landing en http://localhost:3003 · Playground en http://localhost:3003/graphql
 ```
 
 ## Features
-- [ ] Schema-first (ver src/schema.graphql)
-- [ ] Queries con paginación Relay + filtros
-- [ ] Mutations con errores tipados
-- [ ] Subscriptions (graphql-ws)
-- [ ] DataLoader (ver docs/deep-dives/n-plus-1-dataloader.md)
-- [ ] Auth vía JWT de cci-auth-service
-- [ ] Query complexity + depth limiting
+- [x] Schema-first (ver src/schema.graphql)
+- [x] Queries con paginación Relay + filtros
+- [x] Mutations con errores tipados
+- [x] Subscriptions (graphql-ws)
+- [x] DataLoader contra N+1 (26 → 4 queries en listados anidados)
+- [x] Auth vía JWT de cci-auth-service (directivas `@auth`/`@role`)
+- [x] Query complexity + depth limiting

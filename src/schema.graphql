@@ -1,10 +1,166 @@
-type Project { id: ID!, name: String!, tickets(first: Int, after: String): TicketConnection! }
-type Ticket { id: ID!, title: String!, status: String! }
+scalar DateTime
 
-type TicketConnection { edges: [TicketEdge!]!, pageInfo: PageInfo! }
-type TicketEdge { node: Ticket!, cursor: String! }
-type PageInfo { hasNextPage: Boolean!, endCursor: String }
+directive @auth on FIELD_DEFINITION
+directive @role(role: Role!) on FIELD_DEFINITION
 
-type Query { projects(first: Int, after: String): [Project!]! }
-type Mutation { createTicket(projectId: ID!, title: String!): Ticket! }
-type Subscription { ticketCreated(projectId: ID!): Ticket! }
+enum Role {
+  USER
+  ADMIN
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  DONE
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum OrderDirection {
+  ASC
+  DESC
+}
+
+enum ProjectOrderField {
+  CREATED_AT
+  NAME
+}
+
+enum TicketOrderField {
+  CREATED_AT
+  PRIORITY
+  TITLE
+}
+
+type Project {
+  id: ID!
+  name: String!
+  description: String
+  createdAt: DateTime!
+  tickets(first: Int, after: String, filter: TicketFilter, orderBy: TicketOrder): TicketConnection!
+}
+
+type Ticket {
+  id: ID!
+  title: String!
+  description: String
+  status: TicketStatus!
+  priority: TicketPriority!
+  authorSub: String
+  createdAt: DateTime!
+  project: Project!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+type ProjectEdge {
+  node: Project!
+  cursor: String!
+}
+
+type ProjectConnection {
+  edges: [ProjectEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type TicketEdge {
+  node: Ticket!
+  cursor: String!
+}
+
+type TicketConnection {
+  edges: [TicketEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+input ProjectFilter {
+  search: String
+}
+
+input ProjectOrder {
+  field: ProjectOrderField!
+  direction: OrderDirection!
+}
+
+input TicketFilter {
+  status: TicketStatus
+  priority: TicketPriority
+  search: String
+}
+
+input TicketOrder {
+  field: TicketOrderField!
+  direction: OrderDirection!
+}
+
+type Query {
+  projects(first: Int, after: String, filter: ProjectFilter, orderBy: ProjectOrder): ProjectConnection!
+  project(id: ID!): Project
+  tickets(first: Int, after: String, filter: TicketFilter, orderBy: TicketOrder): TicketConnection!
+}
+
+interface Error {
+  message: String!
+}
+
+type ValidationError implements Error {
+  message: String!
+  field: String!
+}
+
+type NotFoundError implements Error {
+  message: String!
+  id: ID!
+}
+
+type InvalidStatusTransitionError implements Error {
+  message: String!
+  from: TicketStatus!
+  to: TicketStatus!
+}
+
+input CreateProjectInput {
+  name: String!
+  description: String
+}
+
+input CreateTicketInput {
+  projectId: ID!
+  title: String!
+  description: String
+  priority: TicketPriority
+}
+
+input ChangeTicketStatusInput {
+  ticketId: ID!
+  status: TicketStatus!
+}
+
+union CreateProjectResult = Project | ValidationError
+union CreateTicketResult = Ticket | ValidationError | NotFoundError
+union ChangeTicketStatusResult = Ticket | NotFoundError | InvalidStatusTransitionError
+union DeleteTicketResult = Ticket | NotFoundError
+
+type Mutation {
+  createProject(input: CreateProjectInput!): CreateProjectResult! @auth
+  createTicket(input: CreateTicketInput!): CreateTicketResult! @auth
+  changeTicketStatus(input: ChangeTicketStatusInput!): ChangeTicketStatusResult! @auth
+  deleteTicket(id: ID!): DeleteTicketResult! @role(role: ADMIN)
+}
+
+type Subscription {
+  ticketCreated(projectId: ID): Ticket!
+  ticketStatusChanged(projectId: ID): Ticket!
+}
