@@ -162,6 +162,22 @@ export type QueryTicketsArgs = {
   orderBy?: InputMaybe<TicketOrder>;
 };
 
+export type Subscription = {
+  __typename?: 'Subscription';
+  ticketCreated: Ticket;
+  ticketStatusChanged: Ticket;
+};
+
+
+export type SubscriptionTicketCreatedArgs = {
+  projectId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type SubscriptionTicketStatusChangedArgs = {
+  projectId?: InputMaybe<Scalars['ID']['input']>;
+};
+
 export type Ticket = {
   __typename?: 'Ticket';
   authorSub?: Maybe<Scalars['String']['output']>;
@@ -326,6 +342,7 @@ export type ResolversTypes = ResolversObject<{
   ProjectOrderField: ProjectOrderField;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
+  Subscription: ResolverTypeWrapper<{}>;
   Ticket: ResolverTypeWrapper<Ticket>;
   TicketConnection: ResolverTypeWrapper<TicketConnection>;
   TicketEdge: ResolverTypeWrapper<TicketEdge>;
@@ -361,6 +378,7 @@ export type ResolversParentTypes = ResolversObject<{
   ProjectOrder: ProjectOrder;
   Query: {};
   String: Scalars['String']['output'];
+  Subscription: {};
   Ticket: Ticket;
   TicketConnection: TicketConnection;
   TicketEdge: TicketEdge;
@@ -445,6 +463,11 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   tickets?: Resolver<ResolversTypes['TicketConnection'], ParentType, ContextType, Partial<QueryTicketsArgs>>;
 }>;
 
+export type SubscriptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = ResolversObject<{
+  ticketCreated?: SubscriptionResolver<ResolversTypes['Ticket'], "ticketCreated", ParentType, ContextType, Partial<SubscriptionTicketCreatedArgs>>;
+  ticketStatusChanged?: SubscriptionResolver<ResolversTypes['Ticket'], "ticketStatusChanged", ParentType, ContextType, Partial<SubscriptionTicketStatusChangedArgs>>;
+}>;
+
 export type TicketResolvers<ContextType = any, ParentType extends ResolversParentTypes['Ticket'] = ResolversParentTypes['Ticket']> = ResolversObject<{
   authorSub?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
@@ -490,6 +513,7 @@ export type Resolvers<ContextType = any> = ResolversObject<{
   ProjectConnection?: ProjectConnectionResolvers<ContextType>;
   ProjectEdge?: ProjectEdgeResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  Subscription?: SubscriptionResolvers<ContextType>;
   Ticket?: TicketResolvers<ContextType>;
   TicketConnection?: TicketConnectionResolvers<ContextType>;
   TicketEdge?: TicketEdgeResolvers<ContextType>;

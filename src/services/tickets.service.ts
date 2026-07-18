@@ -1,5 +1,7 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { Prisma, Ticket } from "@prisma/client";
+import { PubSub } from "graphql-subscriptions";
+import { EVENTS, PUB_SUB } from "../pubsub/pubsub.module";
 import {
   invalidStatusTransitionError,
   InvalidStatusTransitionErrorResult,
@@ -53,7 +55,10 @@ const ORDER_FIELD: Record<string, keyof Prisma.TicketOrderByWithRelationInput> =
 
 @Injectable()
 export class TicketsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(PUB_SUB) private readonly pubSub: PubSub,
+  ) {}
 
   async connection(args: TicketConnectionArgs): Promise<Connection<Ticket>> {
     const size = pageSize(args.first);
@@ -116,6 +121,7 @@ export class TicketsService {
         // authorSub llega con la integración de auth (F4)
       },
     });
+    await this.pubSub.publish(EVENTS.TICKET_CREATED, { ticketCreated: ticket });
     return { __typename: "Ticket", ...ticket };
   }
 
@@ -131,6 +137,7 @@ export class TicketsService {
       where: { id: ticket.id },
       data: { status: input.status },
     });
+    await this.pubSub.publish(EVENTS.TICKET_STATUS_CHANGED, { ticketStatusChanged: updated });
     return { __typename: "Ticket", ...updated };
   }
 

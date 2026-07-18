@@ -149,3 +149,8 @@ type Mutation {
   createTicket(input: CreateTicketInput!): CreateTicketResult!
   changeTicketStatus(input: ChangeTicketStatusInput!): ChangeTicketStatusResult!
 }
+
+type Subscription {
+  ticketCreated(projectId: ID): Ticket!
+  ticketStatusChanged(projectId: ID): Ticket!
+}
