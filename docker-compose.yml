@@ -2,13 +2,21 @@ services:
   api:
     build: .
     env_file: .env
+    restart: unless-stopped
     # 3003 en el host → gql.corecodeinnovation.com (el túnel apunta a 3003).
     ports: ["3003:3000"]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 15s
     depends_on:
       db:
         condition: service_healthy
   db:
     image: postgres:16-alpine
+    restart: unless-stopped
     environment: { POSTGRES_USER: gql, POSTGRES_PASSWORD: gql, POSTGRES_DB: gqlcore }
     ports: ["5434:5432"]   # 5434 en el host (dev); dentro de compose se usa db:5432
     healthcheck:
